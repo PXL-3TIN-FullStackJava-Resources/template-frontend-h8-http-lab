@@ -1,0 +1,25 @@
+<form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <label for="confession">Confession</label>
+    <input type="text" class="form-control" id="confession" placeholder="Enter confession" name="post" formControlName="post">
+    <small *ngIf="myFormFormControls.post.errors?.required && myFormFormControls.post.touched">confession is required!</small>
+  </div>
+  <div class="form-group">
+    <label for="author">Author</label>
+    <input type="text" class="form-control" id="author" placeholder="Author" name="author" formControlName="author">
+    <small *ngIf="myFormFormControls.author.errors?.required && myFormFormControls.author.touched">author is required!</small>
+  </div>
+  <div class="form-group">
+    <label for="department">Department</label>
+    <select class="form-control" id="department" name="department" formControlName="department">
+      <option>PXL-Digital</option>
+      <option>PXL-Business</option>
+      <option>PXL-Education</option>
+      <option>PXL-MAD</option>
+      <option>other</option>
+    </select>
+    <small *ngIf="myFormFormControls.department.errors?.required && myFormFormControls.department.touched">department is required!</small>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>

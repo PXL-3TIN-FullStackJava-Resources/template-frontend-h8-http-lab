@@ -1,0 +1,11 @@
+<div class="card" [ngClass]="{'digital': (confession.department.toLowerCase() == 'pxl-digital')}">
+  <div class="card-header">
+    <img [src]="getDepartmentUrl(confession.department)" alt="logo"/>
+  </div>
+  <div class="card-body">
+    <h5 class="card-title"> {{confession.post}}</h5>
+    <p *ngIf="confession.author != 'anonymous'" class="card-text">{{confession.author}}</p>
+    <a class="btn btn-success" (click)="addLike()">({{confession.likes}}) like</a>
+    <a class="btn btn-danger" (click)="addDislike()">({{confession.dislikes}}) dislike</a>
+  </div>
+</div>
