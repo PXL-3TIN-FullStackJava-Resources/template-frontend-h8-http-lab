@@ -1,82 +1,106 @@
-# H5 Directives & property binding
-In deze lab voorzien we een aantal structurele directives en maken we gebruik van property bindings om attributen van elementen dynamisch aan properties van een component te koppelen. 
+# H8 Http requests & RxJS
+In deze lab maken we gebruik van http requests om data te voorzien in onze applicatie. Deze applicatie is uitgerust met een `inmemory-web-api` die we zullen gebruiken om de http requests te simuleren. De implementatie van deze inmemory-web-api zien we in het volgende hoofdstuk. Het gebruik kan je toepassen zonder kennis van deze service. Je kan ook altijd je eigen backend schrijven in .NET of Java voor deze oefening.
 
-Gegeven is deze repo. Hierin staat een Angular project met reeds een confessions klasse. **Navigeer naar deze folder via de CLI** en voer volgend commando uit: ```npm install```
+Gegeven is deze repo. Hierin staat een Angular project met reeds een confessions applicatie uit de vorige labs. **Navigeer naar deze folder via de CLI** en voer volgend commando uit: ```npm install```
  
 Vervolgens voer je, nog steeds in deze folder, het commando ```ng serve -o``` uit. Hiermee zal de applicatie gestart worden en gaat er automatisch een browser open. Moest dit laatste niet het geval zijn, surf je naar http://localhost:4200. Bij elke aanpassing in de code zal de browser automatisch refreshen.
 
-![alt_text](https://i.imgur.com/TT9FcyW.png "image_tooltip") Starten doen we met herhaling uit vorige lab. Zorg ervoor dat elke keer als je op de 'like' of 'dislike' knop van een confession klikt, de waarde van de teller voor dat object omhoog gaat met 1. De nieuwe waarde wordt ook getoont in de knop. Je kan deze code kopiëren uit de vorige lab.
+![alt_text](https://i.imgur.com/TT9FcyW.png "image_tooltip") Bekijk voor het starten van de lab de applicatie code. Leg hierbij de focus op de `add-confession` component en de implementatie van het formulier. Bekijk daarnaast ook de werkijk van de `confession.service`.
 
-# Structurele directive ngFor
-De eerste aanpassing doen we in de app.component.html file. Hierin gebruiken we de ```ngFor``` directive om over de ```confessionsList``` te loopen en om zo een component te genereren voor elk object in de array:
-```html
-<app-confession-item *ngFor="let item of confessionList" [confession]="item">
-</app-confession-item>
-```
-De ```ngFor```maakt een confession-item component aan voor elk item in de array. Via ```[confession]="item"``` koppelen we het item uit de ngfor aan de ```Input()``` propert in de confession-item component.
-
-![alt_text](https://i.imgur.com/TT9FcyW.png "image_tooltip") Test het formulier uit de vorige lab. Het nieuw toegevoegde element wordt automatisch getoond dankzij de change detection engine van Angular.
-
-# Structurele directive ngIf
-Als iemand als author de naam *anonymous* ingeeft, willen we niet dat deze getoond wordt. Dit doen we met de ```ngIf``` directive. Pas de code in de ```confession-item.component.html``` aan als volgt:
-```html
-<p class="card-text" *ngIf="confession.author != 'anonymous'">{{confession.author}}</p>
+# HTTP requests
+Zoals reeds beschreven maken we in dit project gebruik van een `inmemory-web-api`. deze API is reeds geimplementeerd, dus daar gaan we ons verder niets van aantrekken. De API zorgt, bij het opstarten van de applicatie, voor volgende endpoints die we kunnen gebruiken:
+```ts
+  // for requests to an `api` base URL that gets heroes from a 'confessions' collection 
+  GET api/confessions          // all confessions
+  GET api/confessions/42       // the confession with id=42
+  GET api/confessions?post=^j  // 'j' is a regex; returns confessions whose post starting with 'j' or 'J'
+  GET api/confessions.json/42  // ignores the ".json"
+  POST api/confessions         // add new confessions object
+  PUT api/confessions          // update confessions object based on boject id
+  DELETE api/confessions/2     // remove confessions object with id=2
 ```
 
-# Attribute directives
-In plaats van het departement willen we een afbeelding voor het departement tonen. We schrijven in de ```confession-item.component.ts``` file een methode die de url van de afbeelding teruggeeft:
+We starten met de nodige import in de `app.module.ts` file:
+```ts
+  imports: [
+    BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientInMemoryWebApiModule.forRoot(InMemConfessionService),
+    HttpClientModule
+  ],
+```
+
+`confession.service.ts`
 ```typescript
-getDepartmentUrl(department: string): string {
-    department = department.toLowerCase();
-    switch(department) {
-      case 'pxl-digital': {
-         return 'assets/pxl-digital.png'
-      }
-      case 'pxl-mad': {
-        return 'assets/pxl-mad.png'
-      }
-      case 'pxl-business': {
-        return 'assets/pxl-business.png'
-      }
-      case 'pxl-education': {
-        return 'assets/pxl-education.png'
-      }
-      default: {
-        return 'assets/hogeschoolpxl.png'
-      }
-   }
+export class ConfessionService {
+  confessionList: Confession[] = [
+    new Confession('Mondays are the worst','PXL-Digital','anonymous', true),
+    new Confession('Angular beats VueJS any day','PXL-Digital','anonymous', true),
+    new Confession('Taxes taxes taxes','PXL-Business','anonymous', false),
+    new Confession('Am i an artist yet','PXL-MAD','banksy', false)
+  ]
+  apiurl: string = 'api/confessions';
+
+  constructor(private http: HttpClient) { }
+}
+```
+
+```ts
+getConfessions(): Observable<any>{
+    return this.http.get(this.apiurl).pipe(
+      map(data => {
+        console.log(data);
+        return data;
+      })
+    );
+}
+```
+
+```ts
+import { map } from 'rxjs/operators'
+```
+
+`app.component.ts`
+```ts
+ngOnInit(): void{
+    //this.dataList = this.confessionService.confessionList;
+    this.confessionService.getConfessions().subscribe();
   }
 ```
-Daarna passen we de ```confession-item.component.html``` aan zodat de methode opgeroepen wordt in de source van een image tag:
+je ziet nu in de console / network tab van je development tools de http request
+
+
+# Model casting
+`confession.service.ts`
+```ts
+  getConfessions(): Observable<Confession[]>{
+    return this.http.get<Confession[]>(this.apiurl);
+  }
+```
+# Implementatie GET
+`app.component.ts`
+```ts
+export class AppComponent implements OnInit {
+  // dataList!: Confession[];
+  confessions$!: Observable<Confession[]>;
+  
+  constructor(private confessionService: ConfessionService){
+  }
+
+  ngOnInit(): void{
+    //this.dataList = this.confessionService.confessionList;
+    this.confessions$ = this.confessionService.getConfessions();
+  }
+```
+`app.component.html`
 ```html
-<div class="card-header">
-    <img [src]="getDepartmentUrl(confession.department)" alt="logo" />
-  </div>
-```
-De afbeelding is nu dynamisch gekoppeld via de ```getDepartmentUrl()``` methode. Als de department property van het confession object veranderd, zal ook de afbeelding aangepast worden.
+<app-confession-item *ngFor="let item of confessions$ | async" [confession]="item">
+  ```
+# Implementatie POST
 
-Voorzie tenslotte nog volgende css code in de `confession-item.component.css`:
-```css
-img{
-  display: block;
-  margin: 0 auto;
-  width: 140px;
-}
-```
+# Implementatie PUT
 
-# NgClass
-We willen dat de cards van het departement PXL-digital een groene rand krijgen. Dit doen we met de NgClass directive. We voorzien eerst in de ```confession-item.component.css``` file volgende css klasses:
-```css
-.digital {
-  border: 1px solid green;
-}
-.card {
-  margin-bottom: 1rem;
-}
+# Implementatie delete
 
-```
-Daarna passen we de ```confession-item.component.html``` aan als volgt:
-```html
-<div class="card" [ngClass]="{'digital': (confession.department.toLowerCase() == 'pxl-digital')}">
-```
-Enkel de confessions van PXL-digital zullen nu een groene rand krijgen.
+# Filtering

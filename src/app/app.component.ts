@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { Confession } from './models/confession.model';
 import { ConfessionService } from './services/confession.service';
 
@@ -9,12 +10,15 @@ import { ConfessionService } from './services/confession.service';
 })
 export class AppComponent implements OnInit {
   dataList!: Confession[];
+  confessions$!: Observable<Confession[]>;
+  
   constructor(private confessionService: ConfessionService){
 
   }
 
   ngOnInit(): void{
-    this.dataList = this.confessionService.confessionList;
+    //this.dataList = this.confessionService.confessionList;
+    this.confessions$ = this.confessionService.getConfessions();
   }
 
   processAdd(event: Confession): void{
