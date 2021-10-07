@@ -10,18 +10,19 @@ import { ConfessionService } from './services/confession.service';
 })
 export class AppComponent implements OnInit {
   dataList!: Confession[];
-  confessions$!: Observable<Confession[]>;
-  
+
   constructor(private confessionService: ConfessionService){
 
   }
 
   ngOnInit(): void{
-    //this.dataList = this.confessionService.confessionList;
-    this.confessions$ = this.confessionService.getConfessions();
+   this.dataList = this.confessionService.confessionList;
   }
 
+
   processAdd(event: Confession): void{
-    this.confessionService.confessionList.push(event);
+   this.confessionService.confessionList.push(event);
+   this.dataList = this.confessionService.confessionList;
   }
+
 }

@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Confession } from 'src/app/models/confession.model';
+import { ConfessionService } from 'src/app/services/confession.service';
 
 @Component({
   selector: 'app-confession-item',
