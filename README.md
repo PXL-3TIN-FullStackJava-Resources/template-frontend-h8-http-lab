@@ -78,7 +78,7 @@ export class AppComponent implements OnInit {
     this.getConfessionList();
   }
   
-  getConfessionlist(): void{
+  getConfessionList(): void{
     this.confessions$ = this.confessionService.getConfessions();
   }
 ```
@@ -103,7 +103,7 @@ Hierna passen we de `processAdd` methode in `app.component.ts` aan zodat deze ge
 processAdd(event: Confession): void{
     this.confessionService.addConfession(event).subscribe(data => {
       console.log(data);
-      this.getConfessionlist();
+      this.getConfessionList();
     });
 }
 ```
