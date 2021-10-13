@@ -75,6 +75,10 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void{
+    this.getConfessionList();
+  }
+  
+  getConfessionlist(): void{
     this.confessions$ = this.confessionService.getConfessions();
   }
 ```
