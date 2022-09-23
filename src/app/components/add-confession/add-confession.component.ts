@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Confession } from 'src/app/models/confession.model';
 
 @Component({
@@ -8,10 +8,10 @@ import { Confession } from 'src/app/models/confession.model';
   styleUrls: ['./add-confession.component.css']
 })
 export class AddConfessionComponent implements OnInit {
-  myForm!: FormGroup;
+  myForm!: UntypedFormGroup;
   @Output() newItemEvent = new EventEmitter<Confession>();
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: UntypedFormBuilder) {}
 
   ngOnInit(): void {
    this.myForm = this.fb.group({
